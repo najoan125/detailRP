@@ -11,7 +11,7 @@ namespace detailRPC
 {
     public static class Patch
     {
-        public static bool isdeath, isoverload = false;
+        public static bool isdeath, isoverload, isclear = false;
         [HarmonyPatch(typeof(DiscordController),"UpdatePresence")]
         public static class RPPatch
         {
@@ -25,8 +25,13 @@ namespace detailRPC
             }
             public static bool Prefix(DiscordController __instance, Discord.Discord ___discord)
             {
+                //Main.Logger.Log("RPPatch Working");
                 if (Main.isplaying && ___discord != null)
                 {
+                    if (ADOBase.sceneName == GCNS.sceneLevelSelect)
+                        return true;
+                    if (ADOBase.sceneName == "scnCLS")
+                        return true;
                     String text = String.Empty;
                     String text2 = String.Empty;
                     String text3 = String.Empty;
@@ -87,25 +92,29 @@ namespace detailRPC
                     text3 = Validate(text3);
                     text2 = Validate(text2);
                     Activity activity = default(Activity);
+                    if (text2.IsNullOrEmpty())
+                    {
+                        return true;
+                    }
                     if (!scrController.instance.paused && !RDC.auto && (!(Patch.isdeath || Patch.isoverload) || scrController.instance.noFail))
                     {
                         if (!scrController.instance.noFail)
                         {
                             if (GCS.difficulty == Difficulty.Lenient)
-                                activity.Details = text2 + " / " + Main.Progress() + "% (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "느슨" : "Lenient") + ")";
+                                activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "느슨" : "Lenient") + ")";
                             else if (GCS.difficulty == Difficulty.Normal)
-                                activity.Details = text2 + " / " + Main.Progress() + "% (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통" : "Normal") + ")";
+                                activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통" : "Normal") + ")";
                             else if (GCS.difficulty == Difficulty.Strict)
-                                activity.Details = text2 + " / " + Main.Progress() + "% (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격" : "Strict") + ")";
+                                activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격" : "Strict") + ")";
                         }
                         else
                         {
                             if (GCS.difficulty == Difficulty.Lenient)
-                                activity.Details = Main.Progress() + "% (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "느슨-실패방지" : "Lenient-noFail") + ")";
+                                activity.Details = "(" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "느슨-실패방지" : "Lenient-noFail") + ")";
                             else if (GCS.difficulty == Difficulty.Normal)
-                                activity.Details = Main.Progress() + "% (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통-실패방지" : "Normal-noFail") + ")";
+                                activity.Details = "(" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통-실패방지" : "Normal-noFail") + ")";
                             else if (GCS.difficulty == Difficulty.Strict)
-                                activity.Details = Main.Progress() + "% (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격-실패방지" : "Strict-noFail") + ")";
+                                activity.Details = "(" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격-실패방지" : "Strict-noFail") + ")";
                             if (!scrController.instance.isEditingLevel)
                             {
                                 text3 = RDString.Get("discord.playing", null) + (RDString.language == UnityEngine.SystemLanguage.Korean ? " " : ": ") + text3;
@@ -115,11 +124,11 @@ namespace detailRPC
                     else if (scrController.instance.paused)
                         activity.Details = text2;
                     else if (RDC.auto)
-                        activity.Details = text2 + " / " + Main.Progress() + "% (Auto)";
+                        activity.Details = text2 + " / (Auto)";
                     else if (Patch.isdeath)
-                        activity.Details = text2 + " / " + Main.Progress() + "% (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "죽음" : "Death") + ")";
+                        activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "죽음" : "Death") + ")";
                     else if (Patch.isoverload)
-                        activity.Details = text2 + " / " + Main.Progress() + "% (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "과부하" : "Overload") + ")";
+                        activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "과부하" : "Overload") + ")";
 
                     activity.State = text3;
                     activity.Assets.LargeImage = "planets_icon_stars";
@@ -132,14 +141,10 @@ namespace detailRPC
                             RDBaseDll.printem(result.ToString());
                         }
                     });
-                    DiscordController.shouldUpdatePresence = true;
+                    DiscordController.shouldUpdatePresence = false;
                     return false;
                 }
                 return true;
-            }
-            public static void Postfix()
-            {
-                DiscordController.shouldUpdatePresence = true;
             }
         }
     }
@@ -154,16 +159,61 @@ namespace detailRPC
                 Patch.isdeath = true;
             else
                 Patch.isoverload = true;
+            DiscordController.shouldUpdatePresence = true;
         }
     }
 
-    [HarmonyPatch(typeof(scrController),"Countdown_Update")]
+    [HarmonyPatch(typeof(scrCountdown), "ShowGetReady")]
     public static class StartLoadingPatcher
     {
         public static void Postfix()
         {
             Patch.isdeath = false;
             Patch.isoverload= false;
+            DiscordController.shouldUpdatePresence = true;
+        }
+    }
+
+    [HarmonyPatch(typeof(scrController),"Countdown_Update")]
+    public class EditorStartLoadingPatcher
+    {
+        public static void Prefix()
+        {
+            if (ADOBase.sceneName == GCNS.sceneEditor && (Patch.isdeath || Patch.isoverload))
+            {
+                Patch.isdeath = false;
+                Patch.isoverload = false;
+                DiscordController.shouldUpdatePresence = true;
+            }
+        }
+    }
+    
+    [HarmonyPatch(typeof(scnEditor),"Play")]
+    public static class PlayPatch
+    {
+        public static void Prefix()
+        {
+            Patch.isdeath = false;
+            Patch.isoverload = false;
+            DiscordController.shouldUpdatePresence = true;
+        }
+    }
+
+    [HarmonyPatch(typeof(scnEditor),"TogglePause")]
+    public static class EditorPausePatch
+    {
+        public static void Prefix()
+        {
+            DiscordController.shouldUpdatePresence = true;
+        }
+    }
+
+    [HarmonyPatch(typeof(scnEditor),"ToggleAuto")]
+    public static class EditorAutoPatch
+    {
+        public static void Prefix()
+        {
+            DiscordController.shouldUpdatePresence = true;
         }
     }
 
@@ -174,6 +224,19 @@ namespace detailRPC
         {
             Patch.isdeath = false;
             Patch.isoverload = false;
+            DiscordController.shouldUpdatePresence = true;
+        }
+    }
+
+    [HarmonyPatch(typeof(scrController),"OnLandOnPortal")]
+    public static class ClearPatch
+    {
+        public static void Postfix(scrController __instance)
+        {
+            if (__instance.gameworld)
+            {
+                Patch.isclear = true;
+            }
         }
     }
 }

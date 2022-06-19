@@ -41,6 +41,7 @@ namespace detailRPC
             {
                 Patch.isdeath = false;
                 Patch.isoverload = false;
+                Patch.isclear = false;
             }
 
         }
