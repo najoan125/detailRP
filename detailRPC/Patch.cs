@@ -36,21 +36,21 @@ namespace detailRPC
                     String text2 = String.Empty;
                     String text3 = String.Empty;
 
-                    if (scrController.instance != null && scrController.instance.isLevelEditor)
+                    if (scrController.instance != null && ADOBase.isLevelEditor)
                     {
-                        string text4 = scrController.instance.editor.levelData.fullCaption;
+                        string text4 = ADOBase.editor.levelData.fullCaption;
                         if (GCS.standaloneLevelMode)
                         {
                             text2 = RDString.Get("discord.playing", null);
-                            if (!scrMisc.ApproximatelyFloor((double)(GCS.speedTrialMode ? GCS.currentSpeedTrial : (scrController.instance.isEditingLevel ? scrController.instance.editor.playbackSpeed : 1f)), 1.0))
+                            if (!scrMisc.ApproximatelyFloor((double)(GCS.speedTrialMode ? GCS.currentSpeedTrial : (ADOBase.isEditingLevel ? ADOBase.editor.playbackSpeed : 1f)), 1.0))
                             {
                                 string str = RDString.Get("levelSelect.multiplier", new Dictionary<string, object>
-                        {
-                            {
-                                "multiplier",
-                                scrConductor.instance.song.pitch.ToString("0.0#")
-                            }
-                        });
+                                {
+                                    {
+                                        "multiplier",
+                                        scrConductor.instance.song.pitch.ToString("0.0#")
+                                    }
+                                });
                                 text4 = text4 + " (" + str + ")";
                             }
                             text3 = text4;
@@ -58,30 +58,30 @@ namespace detailRPC
                         else
                         {
                             text2 = RDString.Get("discord.inLevelEditor", null);
-                            if (!scrController.instance.editor.customLevel.levelPath.IsNullOrEmpty())
+                            if (!ADOBase.editor.customLevel.levelPath.IsNullOrEmpty())
                             {
                                 text3 = RDString.Get("discord.editedLevel", new Dictionary<string, object>
-                        {
-                            {
-                                "level",
-                                text4
-                            }
-                        });
+                                {
+                                    {
+                                        "level",
+                                        text4
+                                    }
+                                });
                             }
                         }
                     }
                     else if (scrController.instance != null && scrController.instance.gameworld)
                     {
                         string text5 = ADOBase.GetLocalizedLevelName(ADOBase.sceneName);
-                        if (!scrMisc.ApproximatelyFloor((double)(GCS.speedTrialMode ? GCS.currentSpeedTrial : (scrController.instance.isEditingLevel ? scrController.instance.editor.playbackSpeed : 1f)), 1.0))
+                        if (!scrMisc.ApproximatelyFloor((double)(GCS.speedTrialMode ? GCS.currentSpeedTrial : (ADOBase.isEditingLevel ? ADOBase.editor.playbackSpeed : 1f)), 1.0))
                         {
                             string str2 = RDString.Get("levelSelect.multiplier", new Dictionary<string, object>
-                    {
-                        {
-                            "multiplier",
-                            scrConductor.instance.song.pitch.ToString("0.0#")
-                        }
-                    });
+                            {
+                                {
+                                    "multiplier",
+                                    scrConductor.instance.song.pitch.ToString("0.0#")
+                                }
+                            });
                             text5 = text5 + " (" + str2 + ")";
                         }
                         text2 = RDString.Get("discord.playing", null);
@@ -115,7 +115,7 @@ namespace detailRPC
                                 activity.Details = "(" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통-실패방지" : "Normal-noFail") + ")";
                             else if (GCS.difficulty == Difficulty.Strict)
                                 activity.Details = "(" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격-실패방지" : "Strict-noFail") + ")";
-                            if (!scrController.instance.isEditingLevel)
+                            if (!ADOBase.isEditingLevel)
                             {
                                 text3 = RDString.Get("discord.playing", null) + (RDString.language == UnityEngine.SystemLanguage.Korean ? " " : ": ") + text3;
                             }
