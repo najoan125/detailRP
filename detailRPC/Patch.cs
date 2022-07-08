@@ -11,7 +11,7 @@ namespace detailRPC
 {
     public static class Patch
     {
-        public static bool isdeath, isoverload, isclear = false;
+        public static bool isdeath, isoverload, isclear, auto = false;
         [HarmonyPatch(typeof(DiscordController),"UpdatePresence")]
         public static class RPPatch
         {
@@ -36,13 +36,17 @@ namespace detailRPC
                     String text2 = String.Empty;
                     String text3 = String.Empty;
 
-                    if (scrController.instance != null && ADOBase.isLevelEditor)
+                    bool isLevelEditor = Main.ReleaseNumber >= 94 ? (bool)Main.latestisLevelEditorProperty.GetValue(null) : (bool)Main.isLevelEditorProperty.GetValue(null);
+                    scnEditor editor = Main.ReleaseNumber >= 94 ? (scnEditor)Main.latesteditorProperty.GetValue(null) : (scnEditor)Main.editorProperty.GetValue(null);
+                    bool isEditingLevel = Main.ReleaseNumber >= 94 ? (bool)Main.latestisEditingLevelProperty.GetValue(null) : (bool)Main.isEditingLevelProperty.GetValue(null);
+
+                    if (scrController.instance != null && isLevelEditor)
                     {
-                        string text4 = ADOBase.editor.levelData.fullCaption;
+                        string text4 = editor.levelData.fullCaption;
                         if (GCS.standaloneLevelMode)
                         {
                             text2 = RDString.Get("discord.playing", null);
-                            if (!scrMisc.ApproximatelyFloor((double)(GCS.speedTrialMode ? GCS.currentSpeedTrial : (ADOBase.isEditingLevel ? ADOBase.editor.playbackSpeed : 1f)), 1.0))
+                            if (!scrMisc.ApproximatelyFloor((double)(GCS.speedTrialMode ? GCS.currentSpeedTrial : (isEditingLevel ? editor.playbackSpeed : 1f)), 1.0))
                             {
                                 string str = RDString.Get("levelSelect.multiplier", new Dictionary<string, object>
                                 {
@@ -58,7 +62,7 @@ namespace detailRPC
                         else
                         {
                             text2 = RDString.Get("discord.inLevelEditor", null);
-                            if (!ADOBase.editor.customLevel.levelPath.IsNullOrEmpty())
+                            if (!editor.customLevel.levelPath.IsNullOrEmpty())
                             {
                                 text3 = RDString.Get("discord.editedLevel", new Dictionary<string, object>
                                 {
@@ -73,7 +77,7 @@ namespace detailRPC
                     else if (scrController.instance != null && scrController.instance.gameworld)
                     {
                         string text5 = ADOBase.GetLocalizedLevelName(ADOBase.sceneName);
-                        if (!scrMisc.ApproximatelyFloor((double)(GCS.speedTrialMode ? GCS.currentSpeedTrial : (ADOBase.isEditingLevel ? ADOBase.editor.playbackSpeed : 1f)), 1.0))
+                        if (!scrMisc.ApproximatelyFloor((double)(GCS.speedTrialMode ? GCS.currentSpeedTrial : (isEditingLevel ? editor.playbackSpeed : 1f)), 1.0))
                         {
                             string str2 = RDString.Get("levelSelect.multiplier", new Dictionary<string, object>
                             {
@@ -115,7 +119,7 @@ namespace detailRPC
                                 activity.Details = "(" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통-실패방지" : "Normal-noFail") + ")";
                             else if (GCS.difficulty == Difficulty.Strict)
                                 activity.Details = "(" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격-실패방지" : "Strict-noFail") + ")";
-                            if (!ADOBase.isEditingLevel)
+                            if (!isEditingLevel)
                             {
                                 text3 = RDString.Get("discord.playing", null) + (RDString.language == UnityEngine.SystemLanguage.Korean ? " " : ": ") + text3;
                             }
@@ -124,11 +128,16 @@ namespace detailRPC
                     else if (scrController.instance.paused)
                         activity.Details = text2;
                     else if (RDC.auto)
+                    {
                         activity.Details = text2 + " / (Auto)";
+                        auto = true;
+                    }
                     else if (Patch.isdeath)
                         activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "죽음" : "Death") + ")";
                     else if (Patch.isoverload)
                         activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "과부하" : "Overload") + ")";
+                    if (!RDC.auto)
+                        auto = false;
 
                     activity.State = text3;
                     activity.Assets.LargeImage = "planets_icon_stars";

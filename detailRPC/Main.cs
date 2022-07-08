@@ -17,6 +17,25 @@ namespace detailRPC
         public static Harmony harmony;
         public static bool IsEnabled = false;
         public static bool isplaying = false;
+        public static PropertyInfo isLevelEditorProperty =
+            AccessTools.Property(typeof(scrController), "isLevelEditor");
+        
+        public static PropertyInfo editorProperty =
+            AccessTools.Property(typeof(scrController), "editor");
+        
+        public static PropertyInfo isEditingLevelProperty =
+            AccessTools.Property(typeof(scrController), "isEditingLevel");
+
+        public static PropertyInfo latestisLevelEditorProperty =
+            AccessTools.Property(typeof(scrController), "isLevelEditor");
+
+        public static PropertyInfo latesteditorProperty =
+            AccessTools.Property(typeof(scrController), "editor");
+
+        public static PropertyInfo latestisEditingLevelProperty =
+            AccessTools.Property(typeof(scrController), "isEditingLevel");
+
+        public static readonly int ReleaseNumber = (int)AccessTools.Field(typeof(GCNS), "releaseNumber").GetValue(null);
 
         public static double Progress()
         {
@@ -43,7 +62,10 @@ namespace detailRPC
                 Patch.isoverload = false;
                 Patch.isclear = false;
             }
-
+            if(RDC.auto && !Patch.auto)
+            {
+                DiscordController.shouldUpdatePresence = true;
+            }
         }
 
         private static bool OnToggle(UnityModManager.ModEntry modEntry, bool value)
