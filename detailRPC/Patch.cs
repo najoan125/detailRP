@@ -11,7 +11,7 @@ namespace detailRPC
 {
     public static class Patch
     {
-        public static bool isdeath, isoverload, isclear, auto = false;
+        public static bool isdeath, isoverload, isclear, auto, discord = false;
         [HarmonyPatch(typeof(DiscordController),"UpdatePresence")]
         public static class RPPatch
         {
@@ -25,6 +25,8 @@ namespace detailRPC
             }
             public static bool Prefix(DiscordController __instance, Discord.Discord ___discord)
             {
+                if (___discord != null)
+                    discord = true;
                 //Main.Logger.Log("RPPatch Working");
                 if (Main.isplaying && ___discord != null)
                 {
@@ -36,9 +38,9 @@ namespace detailRPC
                     String text2 = String.Empty;
                     String text3 = String.Empty;
 
-                    bool isLevelEditor = Main.ReleaseNumber >= 94 ? (bool)Main.latestisLevelEditorProperty.GetValue(null) : (bool)Main.isLevelEditorProperty.GetValue(null);
-                    scnEditor editor = Main.ReleaseNumber >= 94 ? (scnEditor)Main.latesteditorProperty.GetValue(null) : (scnEditor)Main.editorProperty.GetValue(null);
-                    bool isEditingLevel = Main.ReleaseNumber >= 94 ? (bool)Main.latestisEditingLevelProperty.GetValue(null) : (bool)Main.isEditingLevelProperty.GetValue(null);
+                    bool isLevelEditor = (bool)Main.isLevelEditorProperty.GetValue(null);
+                    scnEditor editor = (scnEditor)Main.editorProperty.GetValue(null);
+                    bool isEditingLevel = (bool)Main.isEditingLevelProperty.GetValue(null);
 
                     if (scrController.instance != null && isLevelEditor)
                     {
@@ -164,11 +166,14 @@ namespace detailRPC
         [HarmonyPatch(typeof(scrController),"FailAction")]
         private static void Prefix(bool overload = false)
         {
-            if (!overload)
-                Patch.isdeath = true;
-            else
-                Patch.isoverload = true;
-            DiscordController.shouldUpdatePresence = true;
+            if (Patch.discord)
+            {
+                if (!overload)
+                    Patch.isdeath = true;
+                else
+                    Patch.isoverload = true;
+                DiscordController.shouldUpdatePresence = true;
+            }
         }
     }
 
@@ -177,9 +182,12 @@ namespace detailRPC
     {
         public static void Postfix()
         {
-            Patch.isdeath = false;
-            Patch.isoverload= false;
-            DiscordController.shouldUpdatePresence = true;
+            if (Patch.discord)
+            {
+                Patch.isdeath = false;
+                Patch.isoverload = false;
+                DiscordController.shouldUpdatePresence = true;
+            }
         }
     }
 
@@ -188,7 +196,7 @@ namespace detailRPC
     {
         public static void Prefix()
         {
-            if (ADOBase.sceneName == GCNS.sceneEditor && (Patch.isdeath || Patch.isoverload))
+            if (ADOBase.sceneName == GCNS.sceneEditor && (Patch.isdeath || Patch.isoverload) && Patch.discord)
             {
                 Patch.isdeath = false;
                 Patch.isoverload = false;
@@ -202,9 +210,12 @@ namespace detailRPC
     {
         public static void Prefix()
         {
-            Patch.isdeath = false;
-            Patch.isoverload = false;
-            DiscordController.shouldUpdatePresence = true;
+            if (Patch.discord)
+            {
+                Patch.isdeath = false;
+                Patch.isoverload = false;
+                DiscordController.shouldUpdatePresence = true;
+            }
         }
     }
 
@@ -213,7 +224,10 @@ namespace detailRPC
     {
         public static void Prefix()
         {
-            DiscordController.shouldUpdatePresence = true;
+            if (Patch.discord)
+            {
+                DiscordController.shouldUpdatePresence = true;
+            }
         }
     }
 
@@ -222,7 +236,10 @@ namespace detailRPC
     {
         public static void Prefix()
         {
-            DiscordController.shouldUpdatePresence = true;
+            if (Patch.discord)
+            {
+                DiscordController.shouldUpdatePresence = true;
+            }
         }
     }
 
@@ -231,9 +248,12 @@ namespace detailRPC
     {
         public static void Postfix()
         {
-            Patch.isdeath = false;
-            Patch.isoverload = false;
-            DiscordController.shouldUpdatePresence = true;
+            if (Patch.discord)
+            {
+                Patch.isdeath = false;
+                Patch.isoverload = false;
+                DiscordController.shouldUpdatePresence = true;
+            }
         }
     }
 

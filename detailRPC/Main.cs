@@ -26,15 +26,6 @@ namespace detailRPC
         public static PropertyInfo isEditingLevelProperty =
             AccessTools.Property(typeof(scrController), "isEditingLevel");
 
-        public static PropertyInfo latestisLevelEditorProperty =
-            AccessTools.Property(typeof(scrController), "isLevelEditor");
-
-        public static PropertyInfo latesteditorProperty =
-            AccessTools.Property(typeof(scrController), "editor");
-
-        public static PropertyInfo latestisEditingLevelProperty =
-            AccessTools.Property(typeof(scrController), "isEditingLevel");
-
         public static readonly int ReleaseNumber = (int)AccessTools.Field(typeof(GCNS), "releaseNumber").GetValue(null);
 
         public static double Progress()
@@ -62,7 +53,7 @@ namespace detailRPC
                 Patch.isoverload = false;
                 Patch.isclear = false;
             }
-            if(RDC.auto && !Patch.auto)
+            if(RDC.auto && !Patch.auto && Patch.discord)
             {
                 DiscordController.shouldUpdatePresence = true;
             }
