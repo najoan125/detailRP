@@ -113,11 +113,11 @@ namespace detailRPC
                             if (!scrController.instance.noFail)
                             {
                                 if (GCS.difficulty == Difficulty.Lenient)
-                                    activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "느슨" : "Lenient") + ")";
+                                    activity.Details = text2 + " (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "느슨" : "Lenient") + ")";
                                 else if (GCS.difficulty == Difficulty.Normal)
-                                    activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통" : "Normal") + ")";
+                                    activity.Details = text2 + " (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통" : "Normal") + ")";
                                 else if (GCS.difficulty == Difficulty.Strict)
-                                    activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격" : "Strict") + ")";
+                                    activity.Details = text2 + " (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격" : "Strict") + ")";
                             }
                             else
                             {
@@ -135,14 +135,15 @@ namespace detailRPC
                         }
                         else if (!scrController.instance.mistakesManager.IsAllPurePerfect())
                         {
+                            Patch.isclear = false;
                             if (!scrController.instance.noFail)
                             {
                                 if (GCS.difficulty == Difficulty.Lenient)
-                                    activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "느슨 클리어" : "Lenient Clear") + ")";
+                                    activity.Details = text2 + " (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "느슨 클리어" : "Lenient Clear") + ")";
                                 else if (GCS.difficulty == Difficulty.Normal)
-                                    activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통 클리어" : "Normal Clear") + ")";
+                                    activity.Details = text2 + " (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통 클리어" : "Normal Clear") + ")";
                                 else if (GCS.difficulty == Difficulty.Strict)
-                                    activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격 클리어" : "Strict Clear") + ")";
+                                    activity.Details = text2 + " (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격 클리어" : "Strict Clear") + ")";
                             }
                             else
                             {
@@ -158,16 +159,17 @@ namespace detailRPC
                                 }
                             }
                         }
-                        else
+                        else if (scrController.instance.mistakesManager.IsAllPurePerfect())
                         {
+                            Patch.isclear = false;
                             if (!scrController.instance.noFail)
                             {
                                 if (GCS.difficulty == Difficulty.Lenient)
-                                    activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "느슨 완벽한 플레이!" : "Lenient Pure Perfect!") + ")";
+                                    activity.Details = text2 + " (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "느슨 완벽한 플레이!" : "Lenient Pure Perfect!") + ")";
                                 else if (GCS.difficulty == Difficulty.Normal)
-                                    activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통 완벽한 플레이!" : "Normal Pure Perfect!") + ")";
+                                    activity.Details = text2 + " (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통 완벽한 플레이!" : "Normal Pure Perfect!") + ")";
                                 else if (GCS.difficulty == Difficulty.Strict)
-                                    activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격 완벽한 플레이!" : "Strict Pure Perfect!") + ")";
+                                    activity.Details = text2 + " (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격 완벽한 플레이!" : "Strict Pure Perfect!") + ")";
                             }
                             else
                             {
@@ -189,7 +191,7 @@ namespace detailRPC
                         if (!isEditingLevel)
                         {
                             if (!scrController.instance.noFail)
-                                activity.Details = text2 + (RDString.language == UnityEngine.SystemLanguage.Korean ? " / (일시정지)" : " / (Pause)");
+                                activity.Details = text2 + (RDString.language == UnityEngine.SystemLanguage.Korean ? " (일시정지)" : " (Pause)");
                             else
                             {
                                 activity.Details = RDString.language == UnityEngine.SystemLanguage.Korean ? "(일시정지)" : "(Pause)";
@@ -201,13 +203,19 @@ namespace detailRPC
                     }
                     else if (RDC.auto)
                     {
-                        activity.Details = text2 + " / (Auto)";
+                        activity.Details = text2 + " (Auto)";
                         auto = true;
                     }
                     else if (Patch.isdeath)
-                        activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "죽음" : "Fail") + ")";
+                    {
+                        Patch.isdeath = false;
+                        activity.Details = text2 + " (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "죽음 - " + Main.Progress() + "%" : "Fail - " + Main.Progress() + "%") + ")";
+                    }
                     else if (Patch.isoverload)
-                        activity.Details = text2 + " / (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "과부하" : "Overload") + ")";
+                    {
+                        Patch.isoverload = false;
+                        activity.Details = text2 + " (" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "과부하 - " + Main.Progress() + "%" : "Overload - " + Main.Progress() + "%") + ")";
+                    }
                     if (!RDC.auto)
                         auto = false;
 
@@ -256,6 +264,7 @@ namespace detailRPC
             {
                 Patch.isdeath = false;
                 Patch.isoverload = false;
+                Patch.isclear = false;
                 DiscordController.shouldUpdatePresence = true;
             }
         }
@@ -270,6 +279,7 @@ namespace detailRPC
             {
                 Patch.isdeath = false;
                 Patch.isoverload = false;
+                Patch.isclear = false;
                 DiscordController.shouldUpdatePresence = true;
             }
         }
