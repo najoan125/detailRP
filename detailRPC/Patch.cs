@@ -38,23 +38,32 @@ namespace detailRPC
                     String text2 = String.Empty;
                     String text3 = String.Empty;
 
-                    bool isLevelEditor = (bool)Main.isLevelEditorProperty.GetValue(null);
-                    scnEditor editor = (scnEditor)Main.editorProperty.GetValue(null);
-                    bool isEditingLevel = (bool)Main.isEditingLevelProperty.GetValue(null);
-
-                    if (scrController.instance != null && isLevelEditor)
+                    if (ADOBase.sceneName == GCNS.sceneLevelSelect)
                     {
-                        string text4 = editor.levelData.fullCaption;
-                        if (GCS.standaloneLevelMode)
+                        text2 = RDString.Get("discord.inLevelSelect", null);
+                        int overallProgressStage = Persistence.GetOverallProgressStage();
+                        if (overallProgressStage >= 9)
+                        {
+                            text3 = RDString.Get("levelSelect.GameCompleteFull", null);
+                        }
+                        else if (overallProgressStage >= 5)
+                        {
+                            text3 = RDString.Get("levelSelect.GameComplete", null);
+                        }
+                    }
+                    else if (scrController.instance != null && ADOBase.customLevel && !ADOBase.isOfficialLevel)
+                    {
+                        string text4 = ADOBase.customLevel.levelData.fullCaption;
+                        if (!ADOBase.isLevelEditor)
                         {
                             text2 = RDString.Get("discord.playing", null);
-                            if (!scrMisc.ApproximatelyFloor((double)(GCS.speedTrialMode ? GCS.currentSpeedTrial : (isEditingLevel ? editor.playbackSpeed : 1f)), 1.0))
+                            if (!scrMisc.ApproximatelyFloor((double)(GCS.speedTrialMode ? GCS.currentSpeedTrial : (ADOBase.isLevelEditor ? ADOBase.editor.playbackSpeed : 1f)), 1.0))
                             {
                                 string str = RDString.Get("levelSelect.multiplier", new Dictionary<string, object>
                                 {
                                     {
                                         "multiplier",
-                                        scrConductor.instance.song.pitch.ToString("0.0#")
+                                        ADOBase.conductor.song.pitch.ToString("0.0#")
                                     }
                                 });
                                 text4 = text4 + " (" + str + ")";
@@ -64,7 +73,7 @@ namespace detailRPC
                         else
                         {
                             text2 = RDString.Get("discord.inLevelEditor", null);
-                            if (!editor.customLevel.levelPath.IsNullOrEmpty())
+                            if (!ADOBase.editor.customLevel.levelPath.IsNullOrEmpty())
                             {
                                 text3 = RDString.Get("discord.editedLevel", new Dictionary<string, object>
                                 {
@@ -76,18 +85,23 @@ namespace detailRPC
                             }
                         }
                     }
+                    else if (ADOBase.sceneName == "scnCLS")
+                    {
+                        text2 = RDString.Get("discord.inCustomLevelSelect", null);
+                    }
                     else if (scrController.instance != null && scrController.instance.gameworld)
                     {
-                        string text5 = ADOBase.GetLocalizedLevelName(ADOBase.sceneName);
-                        if (!scrMisc.ApproximatelyFloor((double)(GCS.speedTrialMode ? GCS.currentSpeedTrial : (isEditingLevel ? editor.playbackSpeed : 1f)), 1.0))
+                        string levelName = scrController.instance.levelName;
+                        string text5 = ADOBase.GetLocalizedLevelName(ADOBase.isInternalLevel ? GCS.internalLevelName : levelName).RemoveRichTags();
+                        if (!scrMisc.ApproximatelyFloor((double)(GCS.speedTrialMode ? GCS.currentSpeedTrial : (ADOBase.isLevelEditor ? ADOBase.editor.playbackSpeed : 1f)), 1.0))
                         {
                             string str2 = RDString.Get("levelSelect.multiplier", new Dictionary<string, object>
-                            {
-                                {
-                                    "multiplier",
-                                    scrConductor.instance.song.pitch.ToString("0.0#")
-                                }
-                            });
+                {
+                    {
+                        "multiplier",
+                        ADOBase.conductor.song.pitch.ToString("0.0#")
+                    }
+                });
                             text5 = text5 + " (" + str2 + ")";
                         }
                         text2 = RDString.Get("discord.playing", null);
@@ -127,7 +141,7 @@ namespace detailRPC
                                     activity.Details = "(" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통-실패방지" : "Normal-noFail") + ")";
                                 else if (GCS.difficulty == Difficulty.Strict)
                                     activity.Details = "(" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격-실패방지" : "Strict-noFail") + ")";
-                                if (!isEditingLevel)
+                                if (!ADOBase.isLevelEditor)
                                 {
                                     text3 = RDString.Get("discord.playing", null) + (RDString.language == UnityEngine.SystemLanguage.Korean ? " " : ": ") + text3;
                                 }
@@ -152,7 +166,7 @@ namespace detailRPC
                                     activity.Details = "(" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통-실패방지 클리어" : "Normal-noFail Clear") + ")";
                                 else if (GCS.difficulty == Difficulty.Strict)
                                     activity.Details = "(" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격-실패방지 클리어" : "Strict-noFail Clear") + ")";
-                                if (!isEditingLevel)
+                                if (!ADOBase.isLevelEditor)
                                 {
                                     text3 = RDString.Get("discord.playing", null) + (RDString.language == UnityEngine.SystemLanguage.Korean ? " " : ": ") + text3;
                                 }
@@ -177,7 +191,7 @@ namespace detailRPC
                                     activity.Details = "(" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "보통-실패방지 완벽한 플레이!" : "Normal-noFail Pure Perfect!") + ")";
                                 else if (GCS.difficulty == Difficulty.Strict)
                                     activity.Details = "(" + (RDString.language == UnityEngine.SystemLanguage.Korean ? "엄격-실패방지 완벽한 플레이!" : "Strict-noFail Pure Perfect!") + ")";
-                                if (!isEditingLevel)
+                                if (!ADOBase.isLevelEditor)
                                 {
                                     text3 = RDString.Get("discord.playing", null) + (RDString.language == UnityEngine.SystemLanguage.Korean ? " " : ": ") + text3;
                                 }
@@ -186,7 +200,7 @@ namespace detailRPC
                     }
                     else if (scrController.instance.paused)
                     {
-                        if (!isEditingLevel)
+                        if (!ADOBase.isLevelEditor)
                         {
                             if (!scrController.instance.noFail)
                                 activity.Details = text2 + (RDString.language == UnityEngine.SystemLanguage.Korean ? " / (일시정지)" : " / (Pause)");
