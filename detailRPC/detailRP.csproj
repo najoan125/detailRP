@@ -94,4 +94,7 @@
     <None Include="Repository.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy /y detailRPC.dll "C:\Program Files (x86)\Steam\steamapps\common\A Dance of Fire and Ice\Mods\DetailRP"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

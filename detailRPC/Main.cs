@@ -52,7 +52,9 @@ namespace detailRPC
                 Patch.isdeath = false;
                 Patch.isoverload = false;
                 Patch.isclear = false;
+                Patch.isStart = false;
             }
+
             if(RDC.auto && !Patch.auto && Patch.discord)
             {
                 DiscordController.shouldUpdatePresence = true;
